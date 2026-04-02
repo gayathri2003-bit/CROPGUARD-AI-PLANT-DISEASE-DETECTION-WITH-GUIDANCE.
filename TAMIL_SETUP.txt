@@ -1,0 +1,61 @@
+TAMIL NLP TRANSLATION - QUICK SETUP GUIDE
+==========================================
+
+Your plant disease detection system now has proper Tamil translation!
+
+HOW TO USE:
+-----------
+
+1. START APP WITH TAMIL ENABLED:
+   
+   Windows: Double-click "run_with_tamil.bat"
+   
+   OR manually:
+   - Open command prompt
+   - Run: set ENABLE_TAMIL_NLP=true
+   - Run: set NLP_LIGHTWEIGHT=false  
+   - Run: python app.py
+
+2. USE IN WEB INTERFACE:
+   - Upload plant image or use camera
+   - Select "Tamil (தமிழ்)" from language dropdown
+   - Click "Analyze Plant Disease"
+   - View Tamil recommendations
+   - Click "Listen" button for voice output
+
+FIRST TIME USE:
+---------------
+- Tamil model will download automatically (~1.5GB)
+- Takes 2-5 minutes depending on internet speed
+- Model is saved locally for future use
+- After download, translations are fast (2-3 seconds)
+
+WHAT YOU GET:
+-------------
+✓ Proper Tamil translation using AI (IndicTrans2 model)
+✓ Disease-specific recommendations in Tamil
+✓ Voice output in Tamil (browser-based)
+✓ Comprehensive treatment advice
+
+EXAMPLE:
+--------
+English: "Bacterial spot in Pepper plants is caused by Xanthomonas bacteria. 
+          Use disease-free certified seeds."
+
+Tamil:   "மிளகு செடிகளில் பாக்டீரியா புள்ளி நோய் Xanthomonas பாக்டீரியாவால் 
+          ஏற்படுகிறது. நோய் இல்லாத சான்றளிக்கப்பட்ட விதைகளைப் பயன்படுத்தவும்."
+
+TROUBLESHOOTING:
+----------------
+- If Tamil not working: Check environment variables are set
+- If model download fails: Check internet connection and disk space
+- If voice not working: Check browser audio permissions
+- For fallback mode: Just run "python app.py" normally
+
+REQUIREMENTS:
+-------------
+pip install torch transformers sentencepiece
+
+APP IS NOW RUNNING!
+-------------------
+Open browser and go to: http://127.0.0.1:5000

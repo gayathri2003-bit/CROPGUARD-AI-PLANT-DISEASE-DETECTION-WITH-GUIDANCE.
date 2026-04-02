@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voice Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #stopBtn {
+            background: #f44336;
+        }
+        #stopBtn:hover {
+            background: #da190b;
+        }
+        #recommendationText {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Voice Output Test</h1>
+        
+        <div id="recommendationText">
+            மிளகு பயிரில் பாக்டீரியா புள்ளி நோய்: 1) பாதிக்கப்பட்ட இலை மற்றும் கிளைகளை அகற்றி அழிக்கவும். 2) செம்பு அடிப்படையிலான பாக்டீரியா நாசினிகளை தடுப்பு மருந்தாக தெளிக்கவும்.
+        </div>
+        
+        <button onclick="speakRecommendation()" id="speakBtn">
+            🔊 Listen (Tamil)
+        </button>
+        <button onclick="stopSpeaking()" id="stopBtn" style="display:none;">
+            ⏹️ Stop
+        </button>
+        
+        <div id="log" style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px; font-family: monospace; font-size: 12px;">
+            <strong>Console Log:</strong><br>
+        </div>
+    </div>
+
+    <script>
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += message + '<br>';
+            console.log(message);
+        }
+
+        function speakRecommendation() {
+            log('🎤 Listen button clicked');
+            
+            const textElement = document.getElementById('recommendationText');
+            if (!textElement) {
+                alert('No recommendation text found');
+                log('❌ Text element not found');
+                return;
+            }
+            
+            const text = textElement.innerText || textElement.textContent;
+            log('📝 Text length: ' + text.length + ' characters');
+            
+            if (!text || text.trim().length === 0) {
+                alert('No text to speak');
+                log('❌ Text is empty');
+                return;
+            }
+            
+            // Stop any ongoing speech
+            if (speechSynthesis.speaking) {
+                log('⏸️ Stopping previous speech');
+                speechSynthesis.cancel();
+            }
+
+            // Create new utterance
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            
+            // Configure voice settings
+            currentUtterance.rate = 0.85;
+            currentUtterance.pitch = 1.0;
+            currentUtterance.volume = 1.0;
+            currentUtterance.lang = 'ta-IN';
+            
+            log('🔧 Utterance configured');
+            
+            // Get voices
+            const voices = speechSynthesis.getVoices();
+            log('🎵 Available voices: ' + voices.length);
+            
+            // Try to find Tamil voice
+            const tamilVoice = voices.find(voice => 
+                voice.lang.includes('ta') || 
+                voice.lang.includes('Tamil') ||
+                voice.lang === 'ta-IN'
+            );
+            
+            if (tamilVoice) {
+                log('✅ Tamil voice found: ' + tamilVoice.name);
+                currentUtterance.voice = tamilVoice;
+            } else {
+                log('⚠️ Tamil voice not available, using default');
+            }
+
+            // Event handlers
+            currentUtterance.onstart = function() {
+                log('▶️ Speech started');
+                document.getElementById('speakBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'inline-block';
+            };
+
+            currentUtterance.onend = function() {
+                log('⏹️ Speech ended');
+                document.getElementById('speakBtn').style.display = 'inline-block';
+                document.getElementById('stopBtn').style.display = 'none';
+            };
+
+            currentUtterance.onerror = function(event) {
+                log('❌ Speech error: ' + event.error);
+                document.getElementById('speakBtn').style.display = 'inline-block';
+                document.getElementById('stopBtn').style.display = 'none';
+                alert('Voice output error: ' + event.error);
+            };
+
+            // Speak the text
+            try {
+                log('🚀 Starting speech synthesis...');
+                speechSynthesis.speak(currentUtterance);
+            } catch (error) {
+                log('❌ Exception: ' + error.message);
+                alert('Unable to use voice output: ' + error.message);
+            }
+        }
+
+        function stopSpeaking() {
+            log('⏹️ Stop button clicked');
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            document.getElementById('speakBtn').style.display = 'inline-block';
+            document.getElementById('stopBtn').style.display = 'none';
+        }
+
+        // Load voices on page load
+        window.addEventListener('load', function() {
+            log('📄 Page loaded');
+            
+            // Trigger voice loading
+            speechSynthesis.getVoices();
+            
+            // Log available voices after a delay
+            setTimeout(() => {
+                const voices = speechSynthesis.getVoices();
+                log('🎵 Total voices: ' + voices.length);
+                
+                voices.forEach(voice => {
+                    if (voice.lang.includes('ta') || voice.lang.includes('en')) {
+                        log('  - ' + voice.name + ' (' + voice.lang + ')');
+                    }
+                });
+                
+                if (voices.length === 0) {
+                    log('⚠️ No voices loaded yet, waiting...');
+                    speechSynthesis.addEventListener('voiceschanged', function() {
+                        const newVoices = speechSynthesis.getVoices();
+                        log('🔄 Voices loaded: ' + newVoices.length);
+                    });
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
